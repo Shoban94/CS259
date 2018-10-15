@@ -1,5 +1,5 @@
 #include <assert.h>
-#include <string.h>
+
 extern "C" {
 
 void dot_prod_kernel(const float* a, const float* b, float* c, const int num_elems) {
@@ -17,7 +17,6 @@ void dot_prod_kernel(const float* a, const float* b, float* c, const int num_ele
    ***************************/
    int i = 0;
    int j = 0;
-   int k = 0;
    float temp = 0;
 
    float local_a[4096];
@@ -34,8 +33,6 @@ for(i = 0; i<num_elems; i++)
 #pragma HLS PIPELINE II=1
       local_a[i] = a[i];
         
-//memcpy(local_a+(i*32),a+(i*32),32*sizeof(float));
-//memcpy(local_b+(i*32),b+(i*32),32*sizeof(float));
 
 }
 
@@ -44,7 +41,6 @@ for(i = 0; i<num_elems; i++)
 #pragma HLS UNROLL 
 #pragma HLS PIPELINE II=1
       local_b[i] = b[i];
-//memcpy(local_b+(i*32),b+(i*32),32*sizeof(float));
 }
 
 #pragma HLS INLINE OFF
@@ -61,14 +57,14 @@ for (i=j; i<j+32; i++)
 local_c[i] = local_a[i] * local_b[i];
 }
 
-for(i=j;i<j+32;i++)
+}
+for(i=0;i<num_elems;i++)
 {
 #pragma HLS loop_tripcount min=0 max=32
-//#pragma HLS UNROLL
 #pragma HLS PIPELINE II=1
 temp+=local_c[i];
 }
-}
+
    *c = temp;
 
 }
